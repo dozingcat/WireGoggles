@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="recordingQualityLabels" formatted="false">
+        <item>Low (%dx%d)</item>
+        <item>Medium (%dx%d)</item>
+        <item>High (%dx%d)</item>
+    </string-array>
+    
+    <string-array name="recordingQualityValues">
+        <item>LOW</item>
+        <item>MEDIUM</item>
+        <item>HIGH</item>
+    </string-array>
+    
+</resources>

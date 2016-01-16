@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="Recording Options">
+	
+		<CheckBoxPreference android:key="@string/recordAudioPrefsKey" android:defaultValue="@bool/recordAudioDefault" 
+			android:title="@string/recordAudioPrefsTitle" />
+
+		<com.dozingcatsoftware.eyeball.RecordingQualityPreference 
+		    android:key="@string/recordingQualityPrefsKey" android:defaultValue="LOW"
+		    android:entries="@array/recordingQualityLabels" android:entryValues="@array/recordingQualityValues"
+		    android:title="@string/recordingQualityPrefsTitle" />
+		
+	</PreferenceCategory>
+
+
+</PreferenceScreen>

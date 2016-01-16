@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:visibility="invisible"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+
+	<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1">
+		<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" 
+		              android:layout_weight="1" android:gravity="left">
+			<Button android:id="@+id/customColorTopLeftButton" android:text="@string/chooseCustomColorButtonLabel"
+					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		</LinearLayout>
+		<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" 
+                      android:layout_weight="1" android:gravity="right">
+			<Button android:id="@+id/customColorTopRightButton" android:text="@string/chooseCustomColorButtonLabel"
+					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		</LinearLayout>	
+	</LinearLayout>
+	
+	<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" 
+	              android_gravity="center" android:layout_weight="1">
+	              
+		<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" 
+		    android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+			<Button android:id="@+id/customColorBackgroundButton" android:text="@string/chooseCustomBackgroundColorButtonLabel"
+						android:layout_width="wrap_content" android:layout_height="wrap_content" />			
+			<Button android:id="@+id/customColorDoneButton" android:text="@string/customColorDoneLabel"
+						android:layout_width="wrap_content" android:layout_height="wrap_content" />			
+		</LinearLayout>
+
+	</LinearLayout>
+	
+	<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="bottom"
+	              android:layout_weight="1">
+		<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" 
+		              android:layout_weight="1" android:gravity="left">
+			<Button android:id="@+id/customColorBottomLeftButton" android:text="@string/chooseCustomColorButtonLabel"
+					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		</LinearLayout>
+		<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" 
+                      android:layout_weight="1" android:gravity="right">
+			<Button android:id="@+id/customColorBottomRightButton" android:text="@string/chooseCustomColorButtonLabel"
+					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		</LinearLayout>	
+	</LinearLayout>
+	
+
+</LinearLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="aboutButtonLabel">About/Help</string>
+	<string name="colorButtonLabel">Color</string>
+	<string name="qualityButtonLabel">Quality</string>
+	<string name="saveImageButtonLabel">Save Picture</string>
+	<string name="pipButtonLabel">PinP</string>
+	<string name="getFullVersionButtonLabel">Full Version</string>
+</resources>

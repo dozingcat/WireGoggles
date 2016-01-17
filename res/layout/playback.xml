@@ -1,80 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-  
-		<include layout="@layout/overlay_and_controls"  android:layout_width="fill_parent" android:layout_height="fill_parent"/>
-			
-		<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
-		<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:orientation="vertical">
-		
-			<TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:id="@+id/statusText"
-				android:text=""
-				android:gravity="top|center"
-				android:layout_weight="1"
-			/>
-						
+    <include
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        layout="@layout/overlay_and_controls" />
 
-			<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:id="@+id/buttonBar"
-				android:orientation="horizontal"
-				android:visibility="gone"
-				android:layout_weight="1"
-				android:gravity="bottom|center">
-				
-				<ImageButton android:id="@+id/playbackPlayButton" android:src="@drawable/playback_play"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1" >
 
-				<ImageButton android:id="@+id/playbackNextFrameButton" android:src="@drawable/playback_stepforward" 
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
 
-				<ImageButton android:id="@+id/playbackPreviousFrameButton" android:src="@drawable/playback_stepback" 
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
-					
-				<Button android:id="@+id/playbackColorsButton" android:text="Colors" 
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="top|center"
+                android:text="" />
 
-				<Button android:id="@+id/playbackSavePictureButton" android:text="Snapshot"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <LinearLayout
+                android:id="@+id/buttonBar"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="bottom|center"
+                android:orientation="horizontal"
+                android:visibility="gone" >
 
-				<Button android:id="@+id/playbackDeleteVideoButton" android:text="Delete"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#40000000"
+                    android:orientation="horizontal" >
 
-				<Button android:id="@+id/playbackEncodeVideoButton" android:text="Export"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/playbackPlayButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:background="#00000000"
+                        android:src="@drawable/ic_play_arrow_white_48dp" />
 
-				<Button android:id="@+id/playbackShareVideoButton" android:text="Share"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/playbackNextFrameButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:paddingLeft="10dp"
+                        android:src="@drawable/ic_skip_next_white_48dp" />
 
-			</LinearLayout>
-					
-			<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:id="@+id/imageViewButtonBar"
-				android:orientation="horizontal"
-				android:visibility="gone"
-				android:layout_weight="1"
-				android:gravity="bottom|center">
-				
-				<Button android:id="@+id/imageViewColorsButton" android:text="Colors" 
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/playbackPreviousFrameButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:paddingLeft="10dp"
+                        android:src="@drawable/ic_skip_previous_white_48dp" />
+                </LinearLayout>
 
-				<Button android:id="@+id/imageViewDeleteButton" android:text="Delete"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <!-- Spacer to put play controls on left and other buttons on right. -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
-				<Button android:id="@+id/imageViewSaveButton" android:text="Save"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/playbackColorsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Colors" />
 
-				<Button android:id="@+id/imageViewShareButton" android:text="Share"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/playbackSavePictureButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Snapshot" />
 
-			</LinearLayout>
+                <Button
+                    android:id="@+id/playbackDeleteVideoButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete" />
 
-		</LinearLayout>
+                <Button
+                    android:id="@+id/playbackEncodeVideoButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Export" />
 
-		</FrameLayout>
+                <Button
+                    android:id="@+id/playbackShareVideoButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Share" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/imageViewButtonBar"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="bottom|center"
+                android:orientation="horizontal"
+                android:visibility="gone" >
+
+                <Button
+                    android:id="@+id/imageViewColorsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Colors" />
+
+                <Button
+                    android:id="@+id/imageViewDeleteButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete" />
+
+                <Button
+                    android:id="@+id/imageViewSaveButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Save" />
+
+                <Button
+                    android:id="@+id/imageViewShareButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Share" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
 
 </FrameLayout>

@@ -1,89 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   	android:layout_width="fill_parent"
-   	android:layout_height="fill_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
-	<SurfaceView android:id="@+id/cameraView" 
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
-		
-	<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">	
+    <SurfaceView
+        android:id="@+id/cameraView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 
-		<include layout="@layout/overlay_and_controls"  android:layout_width="fill_parent" android:layout_height="fill_parent"/>
-			
-		<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:orientation="vertical">
-		
-			<FrameLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
-			
-				<TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:id="@+id/statusText"
-					android:text="Touch screen for options"
-					android:gravity="top|center"
-					android:layout_weight="1"
-				/>
-				
-				<LinearLayout android:orientation="vertical" android:id="@+id/verticalButtonBar" android:visibility="invisible"
-				  android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingTop="5dp">
-				  
-				  <com.dozingcatsoftware.util.ShutterButton
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            layout="@layout/overlay_and_controls" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+
+                <TextView
+                    android:id="@+id/statusText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|center"
+                    android:text="@string/touchForOptions" />
+
+                <LinearLayout
+                    android:id="@+id/verticalButtonBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:background="#20000000"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingTop="3dp"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp"
+                    android:visibility="invisible" >
+
+                    <com.dozingcatsoftware.util.ShutterButton
                         android:id="@+id/cameraActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="#00000000"
                         android:clickable="true"
                         android:src="@drawable/btn_camera_shutter_holo" />
-                  <View
-                    android:layout_width="0dp"
-                    android:layout_height="5dp" />
-                  
-				  <ImageButton android:id="@+id/preferencesButton" android:src="@drawable/settings_button" 
-				  		android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
-				  	<ImageButton android:id="@+id/cameraModeButton" android:src="@drawable/btn_ic_mode_switch_camera" 
-				  		android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
-				  	<ImageButton android:id="@+id/videoModeButton" android:src="@drawable/btn_ic_mode_switch_video"
-				  		android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
-				  				
-				</LinearLayout>
-				
-			</FrameLayout>
 
-			<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:id="@+id/buttonBar"
-				android:orientation="horizontal"
-				android:layout_weight="1"
-				android:visibility="invisible"
-				android:gravity="bottom|center">
-				
-				<Button android:id="@+id/aboutButton" android:text="@string/aboutButtonLabel"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/toggleVideoButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="#00000000"
+                        android:paddingTop="16dp"
+                        android:src="@drawable/ic_photo_camera_white_36dp" />
 
-				<Button android:id="@+id/colorButton" android:text="@string/colorButtonLabel" 
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/switchCameraButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="#00000000"
+                        android:paddingTop="16dp"
+                        android:src="@drawable/ic_camera_rear_white_36dp"
+                        android:visibility="gone" />
 
-				<Button android:id="@+id/qualityButton" android:text="@string/qualityButtonLabel"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/preferencesButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="#00000000"
+                        android:paddingTop="16dp"
+                        android:src="@drawable/ic_settings_white_36dp" />
 
-				<Button android:id="@+id/switchCameraButton" android:text="@string/switchCameraButtonLabel" android:visibility="gone"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/videoLibraryButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="#00000000"
+                        android:paddingTop="16dp"
+                        android:src="@drawable/ic_photo_library_white_36dp" />
 
-				<Button android:id="@+id/zoomButton" android:text="@string/pipButtonLabel" 
-					android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <!-- Spacer to put help icon at bottom. -->
+                    <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+                
+                    <ImageButton
+                        android:id="@+id/aboutButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:paddingBottom="8dp"
+                        android:src="@drawable/ic_help_outline_white_36dp" />
+                </LinearLayout>
 
-                <Button android:id="@+id/videoLibraryButton" android:text="@string/videoLibraryButtonLabel" 
-                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:id="@+id/buttonBar"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:gravity="bottom|center"
+                    android:orientation="horizontal"
+                    android:visibility="invisible" >
 
-                <Button android:id="@+id/convertImageButton" android:text="@string/convertImageButtonLabel" 
-                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <Button
+                        android:id="@+id/colorButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/colorButtonLabel" />
 
-			</LinearLayout>
-		
-		</LinearLayout>
+                    <Button
+                        android:id="@+id/qualityButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/qualityButtonLabel" />
 
-	</FrameLayout>
-	
-	<include android:id="@+id/customColorView" layout="@layout/custom_colors" />
+                    <Button
+                        android:id="@+id/zoomButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pipButtonLabel" />
+
+                    <Button
+                        android:id="@+id/convertImageButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/convertImageButtonLabel" />
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <include
+        android:id="@+id/customColorView"
+        layout="@layout/custom_colors" />
 
 </FrameLayout>

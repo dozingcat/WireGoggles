@@ -36,6 +36,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -114,7 +115,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     int defaultPreviewFrameRate;
     int currentPreviewFrameRate;
 
-    ImageButton cameraModeButton, videoModeButton;
+    ImageButton toggleVideoButton, switchCameraButton;
     ShutterButton cameraActionButton;
     boolean videoMode = false;
     VideoRecorder videoRecorder;
@@ -175,14 +176,14 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         setViewClickListener(findViewById(R.id.aboutButton), "doAbout");
         setViewClickListener(findViewById(R.id.convertImageButton), "chooseGalleryImage");
 
+        // The default Material style uppercases button labels, which we don't want for "PinP".
+        ((Button) findViewById(R.id.zoomButton)).setTransformationMethod(null);
+
         // show "Switch Camera" button if more than one camera
+        switchCameraButton = (ImageButton) findViewById(R.id.switchCameraButton);
         if (CameraUtils.numberOfCameras() > 1) {
-            View switchCameraButton = findViewById(R.id.switchCameraButton);
             setViewClickListener(switchCameraButton, "switchToNextCamera");
             switchCameraButton.setVisibility(View.VISIBLE);
-            // shorten color and quality button labels so the buttons all fit on one row
-            ((android.widget.Button)findViewById(R.id.colorButton)).setText(R.string.colorButtonShortLabel);
-            ((android.widget.Button)findViewById(R.id.qualityButton)).setText(R.string.qualityButtonShortLabel);
         }
 
         customColorEditView = findViewById(R.id.customColorView);
@@ -200,10 +201,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         noiseFilterCheckbox = (CheckBox)findViewById(R.id.noiseFilterCheckbox);
         setViewClickListener(noiseFilterCheckbox, "noiseFilterCheckboxChanged");
 
-        cameraModeButton = (ImageButton)findViewById(R.id.cameraModeButton);
-        videoModeButton = (ImageButton)findViewById(R.id.videoModeButton);
-        setViewClickListener(cameraModeButton, "switchToCameraMode");
-        setViewClickListener(videoModeButton, "switchToVideoMode");
+        toggleVideoButton = (ImageButton)findViewById(R.id.toggleVideoButton);
+        setViewClickListener(toggleVideoButton, "toggleVideoMode");
 
         cameraActionButton = (ShutterButton)findViewById(R.id.cameraActionButton);
         cameraActionButton.setOnShutterButtonListener(this);
@@ -639,24 +638,22 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     }
 
     public void updateCameraButtons() {
-        cameraModeButton.setAlpha(videoMode ? 100 : 255);
-        videoModeButton.setAlpha(videoMode ? 255 : 100);
+        switchCameraButton.setImageResource(CameraUtils.cameraIsFrontFacing(cameraId) ?
+                R.drawable.ic_camera_front_white_36dp : R.drawable.ic_camera_rear_white_36dp);
+        toggleVideoButton.setImageResource(videoMode ?
+                R.drawable.ic_videocam_white_36dp : R.drawable.ic_photo_camera_white_36dp);
 
-        int resID = R.drawable.btn_camera_shutter_holo;
+        int cameraActionId = R.drawable.btn_camera_shutter_holo;
         if (videoMode) {
-            resID = (isRecordingVideo()) ? R.drawable.btn_video_shutter_recording_holo : R.drawable.btn_video_shutter_holo;
+            cameraActionId = (isRecordingVideo()) ?
+                    R.drawable.btn_video_shutter_recording_holo : R.drawable.btn_video_shutter_holo;
         }
-        cameraActionButton.setImageResource(resID);
+        cameraActionButton.setImageResource(cameraActionId);
     }
 
-    public void switchToCameraMode() {
-        videoMode = false;
+    public void toggleVideoMode() {
+        videoMode = !videoMode;
         if (isRecordingVideo()) stopVideoRecording();
-        updateCameraButtons();
-    }
-
-    public void switchToVideoMode() {
-        videoMode = true;
         updateCameraButtons();
     }
 
@@ -864,6 +861,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         }
         cameraId = (cameraId + 1) % CameraUtils.numberOfCameras();
         startCamera();
+        updateCameraButtons();
     }
 
     /* The camera preview consumes a lot of CPU time, and there's not much we can do about it

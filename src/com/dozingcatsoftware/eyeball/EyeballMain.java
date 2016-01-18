@@ -24,7 +24,6 @@ import android.hardware.Camera.Size;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -42,38 +41,42 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class EyeballMain extends Activity
-implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListener, ShutterButton.OnShutterButtonListener {
+public class EyeballMain extends Activity implements
+        Camera.PreviewCallback,
+        SurfaceHolder.Callback,
+        OnColorChangedListener,
+        ShutterButton.OnShutterButtonListener {
 
     public static final boolean DEBUG = false;
 
     // 16 color schemes, left to right and top to bottom in grid view
     public static ColorScheme[] COLORS = new ColorScheme[] {
-        new ColorScheme.FixedColorScheme(0,0,0, 255, 255, 255),
-        new ColorScheme.FixedColorScheme(0,0,0, 255, 0, 0),
-        new ColorScheme.FixedColorScheme(0,0,0, 0, 255, 0),
-        new ColorScheme.FixedColorScheme(0,0,0, 0, 0, 255),
-        new ColorScheme.FixedColorScheme(0,0,0, 255, 255, 0),
-        new ColorScheme.FixedColorScheme(0,0,0, 255, 0, 255),
-        new ColorScheme.FixedColorScheme(0,0,0, 0, 255, 255),
+            new ColorScheme.FixedColorScheme(0,0,0, 255, 255, 255),
+            new ColorScheme.FixedColorScheme(0,0,0, 255, 0, 0),
+            new ColorScheme.FixedColorScheme(0,0,0, 0, 255, 0),
+            new ColorScheme.FixedColorScheme(0,0,0, 0, 0, 255),
+            new ColorScheme.FixedColorScheme(0,0,0, 255, 255, 0),
+            new ColorScheme.FixedColorScheme(0,0,0, 255, 0, 255),
+            new ColorScheme.FixedColorScheme(0,0,0, 0, 255, 255),
 
-        new ColorScheme.GradientColorScheme(0,0,0, 0, 0, 255, 255, 0, 0),
-        new ColorScheme.GradientColorScheme(0,0,0, 255, 0, 0, 0, 255, 0),
-        new ColorScheme.GradientColorScheme(0,0,0, 0, 255, 0, 0, 0, 255),
-        new ColorScheme.GradientColorScheme(0,0,0, 255, 0, 255, 255, 255, 0),
+            new ColorScheme.GradientColorScheme(0,0,0, 0, 0, 255, 255, 0, 0),
+            new ColorScheme.GradientColorScheme(0,0,0, 255, 0, 0, 0, 255, 0),
+            new ColorScheme.GradientColorScheme(0,0,0, 0, 255, 0, 0, 0, 255),
+            new ColorScheme.GradientColorScheme(0,0,0, 255, 0, 255, 255, 255, 0),
 
-        new ColorScheme.Gradient2DColorScheme(0,0,0, 255,255,255, 255,0,0, 0,255,0, 0,0,255),
+            new ColorScheme.Gradient2DColorScheme(0,0,0, 255,255,255, 255,0,0, 0,255,0, 0,0,255),
 
-        new ColorScheme.FixedColorScheme(255, 255, 255, 0, 0, 0),
-        new ColorScheme.FixedColorScheme(255, 255, 255, 255, 0, 0),
-        new ColorScheme.FixedColorScheme(255, 255, 255, 0, 0, 255),
+            new ColorScheme.FixedColorScheme(255, 255, 255, 0, 0, 0),
+            new ColorScheme.FixedColorScheme(255, 255, 255, 255, 0, 0),
+            new ColorScheme.FixedColorScheme(255, 255, 255, 0, 0, 255),
 
-        new ColorScheme.AnimatedGradientColorScheme(255,255,255, 255,0,0, 0,192,0, 0,0,255),
-        new ColorScheme.Gradient2DColorScheme(255,255,192, 255,0,0, 0,192,0, 0,0,255, 0,0,0),
-        new ColorScheme.AnimatedGradientColorScheme(0,0,0, 255,0,0, 0,255,0, 0,0,255),
-        new ColorScheme.MatrixColorScheme(0, 255, 0, 400, 240),
+            new ColorScheme.AnimatedGradientColorScheme(255,255,255, 255,0,0, 0,192,0, 0,0,255),
+            new ColorScheme.Gradient2DColorScheme(255,255,192, 255,0,0, 0,192,0, 0,0,255, 0,0,0),
+            new ColorScheme.AnimatedGradientColorScheme(0,0,0, 255,0,0, 0,255,0, 0,0,255),
+            new ColorScheme.MatrixColorScheme(0, 255, 0, 400, 240),
 
-        new ColorScheme.Gradient2DColorScheme(0,0,0, 255,255,255, 255,255,0, 255,0,255, 0,255,255),
+            new ColorScheme.Gradient2DColorScheme(
+                    0,0,0, 255,255,255, 255,255,0, 255,0,255, 0,255,255),
     };
     public static int COLOR_GRID_ROWS = 4;
 
@@ -92,7 +95,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
 
     View customColorEditView;
     String customColorEditKey;
-    ColorScheme.Gradient2DColorScheme customColorScheme = (ColorScheme.Gradient2DColorScheme)COLORS[COLORS.length-1];
+    ColorScheme.Gradient2DColorScheme customColorScheme =
+            (ColorScheme.Gradient2DColorScheme)COLORS[COLORS.length-1];
 
     View chooseColorControlBar;
     CheckBox solidColorCheckbox;
@@ -122,19 +126,19 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     AudioRecord audioRecorder;
     static long VIDEO_TIME_LIMIT_MS = 60000;
 
-    boolean showVideoTab = false; // set to true after recording video, so library tab will start with videos selected
+    // Set to true after recording video, so library tab will start with videos selected.
+    boolean showVideoTab = false;
 
     boolean showDebugMessages;
     boolean hasToggledDebugForTouch;
 
-    // helper method to assign an OnClickListener that calls a method with no arguments
+    // Helper method to assign an OnClickListener that calls a method with no arguments.
     void setViewClickListener(View view, final String methodName) {
         AndroidUtils.bindOnClickListener(this, view, methodName);
     }
 
     /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -145,7 +149,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         cameraView.getHolder().addCallback(this);
         cameraView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        // shrink the camera preview so picture-in-picture size is correct, apparently has to be done here
+        // Shrink the camera preview so picture-in-picture size is correct, apparently has to be
+        // done here.
         Display display = this.getWindowManager().getDefaultDisplay();
         cameraView.setLayoutParams(new FrameLayout.LayoutParams((int)(display.getWidth()*PIP_RATIO),
                 (int)(display.getHeight()*PIP_RATIO)));
@@ -179,7 +184,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         // The default Material style uppercases button labels, which we don't want for "PinP".
         ((Button) findViewById(R.id.zoomButton)).setTransformationMethod(null);
 
-        // show "Switch Camera" button if more than one camera
+        // Show "Switch Camera" button if more than one camera.
         switchCameraButton = (ImageButton) findViewById(R.id.switchCameraButton);
         if (CameraUtils.numberOfCameras() > 1) {
             setViewClickListener(switchCameraButton, "switchToNextCamera");
@@ -188,12 +193,18 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
 
         customColorEditView = findViewById(R.id.customColorView);
 
-        setViewClickListener(findViewById(R.id.customColorDoneButton), "closeCustomColorView");
-        setViewClickListener(findViewById(R.id.customColorTopLeftButton), "chooseCustomColorTopLeft");
-        setViewClickListener(findViewById(R.id.customColorTopRightButton), "chooseCustomColorTopRight");
-        setViewClickListener(findViewById(R.id.customColorBottomLeftButton), "chooseCustomColorBottomLeft");
-        setViewClickListener(findViewById(R.id.customColorBottomRightButton), "chooseCustomColorBottomRight");
-        setViewClickListener(findViewById(R.id.customColorBackgroundButton), "chooseCustomColorBackground");
+        setViewClickListener(
+                findViewById(R.id.customColorDoneButton), "closeCustomColorView");
+        setViewClickListener(
+                findViewById(R.id.customColorTopLeftButton), "chooseCustomColorTopLeft");
+        setViewClickListener(
+                findViewById(R.id.customColorTopRightButton), "chooseCustomColorTopRight");
+        setViewClickListener(
+                findViewById(R.id.customColorBottomLeftButton), "chooseCustomColorBottomLeft");
+        setViewClickListener(
+                findViewById(R.id.customColorBottomRightButton), "chooseCustomColorBottomRight");
+        setViewClickListener(
+                findViewById(R.id.customColorBackgroundButton), "chooseCustomColorBackground");
 
         chooseColorControlBar = findViewById(R.id.chooseColorControlBar);
         solidColorCheckbox = (CheckBox)findViewById(R.id.solidColorCheckbox);
@@ -215,8 +226,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         updateCustomColorScheme();
     }
 
-    @Override
-    public void onPause() {
+    @Override public void onPause() {
         appVisible = false;
         if (isRecordingVideo()) {
             stopVideoRecording();
@@ -225,8 +235,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         super.onPause();
     }
 
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
         AndroidUtils.setSystemUiLowProfile(cameraView);
 
@@ -242,17 +251,19 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         noiseFilterCheckbox.setChecked(useNoiseFilter);
 
         appVisible = true;
-        // hide color grid controls because we may have been showing them before
+        // Hide color grid controls because we may have been showing them before.
         chooseColorControlBar.setVisibility(View.GONE);
         startCameraIfVisible();
     }
 
 
-    /* Droid and possibly other devices have a "camera" button, which will save the picture or start/stop video recording.
+    /**
+     * Droid and possibly other devices have a "camera" button, which will save the picture or
+     * start/stop video recording.
      */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode==KeyEvent.KEYCODE_CAMERA || keyCode==KeyEvent.KEYCODE_DPAD_CENTER) && event.getRepeatCount()==0) {
+    @Override public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode==KeyEvent.KEYCODE_CAMERA ||
+                (keyCode==KeyEvent.KEYCODE_DPAD_CENTER) && event.getRepeatCount()==0)) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -262,13 +273,13 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
             return true;
         }
         if (keyCode==KeyEvent.KEYCODE_BACK) {
-            // if editing custom colors, dismiss editor, otherwise handle normally
+            // If editing custom colors, dismiss editor, otherwise handle normally.
             if (customColorEditView.getVisibility()==View.VISIBLE) {
                 customColorEditView.setVisibility(View.INVISIBLE);
                 return true;
             }
             else if (imageProcessor.showingColorSchemeGrid()) {
-                // if selecting colors, hide selection grid and restore original color scheme
+                // If selecting colors, hide selection grid and restore original color scheme.
                 updateColor();
                 chooseColorControlBar.setVisibility(View.GONE);
                 return true;
@@ -288,7 +299,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         statusUpdateID++;
         final int updateID = statusUpdateID;
         statusText.setText(text);
-        // schedule an update to clear text, but only if statusUpdateID hasn't changed (which it will if another message is set)
+        // Schedule an update to clear text, but only if statusUpdateID hasn't changed (which it
+        // will if another message is set)
         Runnable clearText = new Runnable() {
             @Override
             public void run() {
@@ -309,7 +321,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
 
     public void toggleButtonBarVisibility() {
         if (customColorEditView.getVisibility()==View.VISIBLE) return;
-        buttonBar.setVisibility(buttonBar.getVisibility()==View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+        buttonBar.setVisibility(
+                buttonBar.getVisibility()==View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
         if (verticalButtonBar!=null) verticalButtonBar.setVisibility(buttonBar.getVisibility());
     }
 
@@ -328,14 +341,14 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
 
     public void chooseColor() {
         imageProcessor.setGridColorSchemes(COLORS, COLOR_GRID_ROWS);
-        // hide buttons and picture-in-picture
+        // Hide buttons and picture-in-picture.
         buttonBar.setVisibility(View.INVISIBLE);
         if (verticalButtonBar!=null) verticalButtonBar.setVisibility(View.INVISIBLE);
         overlayView.setPictureInPictureRatio(0);
         overlayView.setCornerImage(null);
         overlayView.invalidate();
         chooseColorControlBar.setVisibility(View.VISIBLE);
-        // tell overlay view to stretch to full screen (no margins)
+        // Tell overlay view to stretch to full screen (no margins).
         overlayView.setFillScreen(true);
     }
 
@@ -397,13 +410,14 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     final static int ACTIVITY_SELECT_IMAGE = 1;
 
     public void chooseGalleryImage() {
-        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        Intent i = new Intent(
+                Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
     }
 
-    @Override protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-
         switch(requestCode) {
             case ACTIVITY_SELECT_IMAGE:
                 if (resultCode == RESULT_OK) {
@@ -411,12 +425,13 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
                         @Override
                         public void run() {
                             try {
-                                final String imageDirectory = (new ProcessPictureOperation()).
-                                        processPicture(EyeballMain.this, intent.getData());
+                                final String imageDirectory = (new ProcessPictureOperation())
+                                        .processPicture(EyeballMain.this, intent.getData());
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        ViewImageActivity.startActivityWithImageDirectory(EyeballMain.this, imageDirectory);
+                                        ViewImageActivity.startActivityWithImageDirectory(
+                                                EyeballMain.this, imageDirectory);
                                     }
                                 });
                             }
@@ -450,7 +465,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
             int targetRatio = (zoomRatio > CameraUtils.DEFAULT_ZOOM_RATIO) ?
                     CameraUtils.DEFAULT_ZOOM_RATIO : ZOOMED_IN_RATIO;
             zoomRatio = CameraUtils.setCameraZoomRatio(camera, targetRatio);
-            updateStatusTextWithFade((zoomRatio<=CameraUtils.DEFAULT_ZOOM_RATIO) ? "Zoom Out" : "Zoom In");
+            updateStatusTextWithFade(
+                    (zoomRatio<=CameraUtils.DEFAULT_ZOOM_RATIO) ? "Zoom Out" : "Zoom In");
         }
     }
 
@@ -477,7 +493,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
                 else {
                     toggleButtonBarVisibility();
 
-                    // check for double click to zoom
+                    // Check for double click to zoom.
                     long now = System.currentTimeMillis();
                     if (lastClickTime!=null) {
                         if (now - lastClickTime <= DOUBLE_CLICK_DELAY) {
@@ -495,11 +511,12 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
             }
         }
         else {
-            // toggle debug if touch is held for more then 3 seconds
+            // Toggle debug if touch is held for more then 3 seconds.
             if (!hasToggledDebugForTouch && event.getEventTime() - event.getDownTime() >= 3000) {
                 hasToggledDebugForTouch = true;
                 showDebugMessages = !showDebugMessages;
-                String msg = (showDebugMessages) ? "Debug Messages Enabled" : "Debug Messages Disabled";
+                String msg = (showDebugMessages) ?
+                        "Debug Messages Enabled" : "Debug Messages Disabled";
                 updateStatusTextWithFade(msg);
             }
         }
@@ -524,16 +541,17 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     boolean saveNextImageReceived = false;
     String lastSavedImageDirectory;
 
-    // this method is called by the save button and just sets a flag so that saveCurrentBitmap will be called
-    // when the next image is received
+    // This method is called by the shutter button and just sets a flag so that saveCurrentBitmap
+    // will be called when the next image is received.
     void saveNextBitmap() {
         if (imageProcessor==null || saveInProgress) return;
         saveInProgress = saveNextImageReceived = true;
-        // FIXME: always save images at highest quality, imageProcessor.setSampleFactor(1) here doesn't work
+        // FIXME: Always save images at highest quality, imageProcessor.setSampleFactor(1) here
+        // doesn't work
     }
 
     void saveCurrentBitmap() {
-        // save image in separate thread so UI stays responsive
+        // Aave image in separate thread so UI stays responsive.
         pauseCamera();
         final Bitmap bitmap = imageProcessor.getBitmap();
         updateStatusTextWithFade("Saving...");
@@ -574,7 +592,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         }
     }
 
-    // the camera action button saves a picture in camera mode, or starts or stops recording in video mode
+    // The camera action button saves a picture in camera mode, or starts or stops recording in
+    // video mode.
     public void handleCameraActionButton() {
         if (videoMode) {
             toggleVideoRecording();
@@ -592,17 +611,20 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     };
 
     void showCornerImageCopyingBitmap(Bitmap bitmap) {
-        // copy to a smaller bitmap, to reduce memory usage
+        // Copy to a smaller bitmap, to reduce memory usage.
         float ratio = 0.34f;
 
-        Bitmap smallBitmap = Bitmap.createBitmap((int)(ratio*overlayView.getWidth()), (int)(ratio*overlayView.getHeight()), Bitmap.Config.ARGB_8888);
+        Bitmap smallBitmap = Bitmap.createBitmap(
+                (int)(ratio*overlayView.getWidth()),
+                (int)(ratio*overlayView.getHeight()),
+                Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(smallBitmap);
         Rect dstRect = new Rect(0, 0, smallBitmap.getWidth(), smallBitmap.getHeight());
         canvas.drawBitmap(bitmap, null, dstRect, null);
 
         overlayView.setCornerImage(smallBitmap);
         overlayView.setCornerImageRatio(ratio);
-        // hide image after 5 seconds (TODO: reset if user takes another picture)
+        // Hide image after 5 seconds (TODO: reset if user takes another picture).
         handler.postDelayed(hideCornerImageCallback, 5000);
     }
 
@@ -613,12 +635,6 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
 
     void viewLastSavedImage() {
         ViewImageActivity.startActivityWithImageDirectory(this, lastSavedImageDirectory);
-    }
-
-    public void doGetFullVersion() {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("market://search?q=pname:com.dozingcatsoftware.WireGoggles"));
-        startActivity(intent);
     }
 
     public void solidColorCheckboxChanged() {
@@ -659,7 +675,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
 
     boolean shouldRecordAudio() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        return prefs.getBoolean(getString(R.string.recordAudioPrefsKey), getResources().getBoolean(R.bool.recordAudioDefault));
+        return prefs.getBoolean(getString(R.string.recordAudioPrefsKey),
+                getResources().getBoolean(R.bool.recordAudioDefault));
     }
 
     VideoRecorder.Quality getRecordingQuality() {
@@ -674,7 +691,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     }
 
     public void gotoPreferences() {
-        // pass camera preview size so preferences screen can show video resolutions
+        // Pass camera preview size so preferences screen can show video resolutions.
         WGPreferences.startActivity(this, previewSize.width, previewSize.height);
     }
 
@@ -703,10 +720,17 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         int audioSampleSize = 44100;
         if (this.shouldRecordAudio()) {
             int bufferSize = Math.max(audioSampleSize,
-                    AudioRecord.getMinBufferSize(audioSampleSize, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT));
+                    AudioRecord.getMinBufferSize(
+                            audioSampleSize,
+                            AudioFormat.CHANNEL_IN_MONO,
+                            AudioFormat.ENCODING_PCM_16BIT));
             try {
-                audioRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, audioSampleSize, AudioFormat.CHANNEL_IN_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+                audioRecorder = new AudioRecord(
+                        MediaRecorder.AudioSource.MIC,
+                        audioSampleSize,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT,
+                        bufferSize);
             }
             catch(Exception ex) {
                 audioRecorder = null;
@@ -721,7 +745,9 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
                     try {
                         while (videoRecorder!=null) {
                             int numBytes = audioRecorder.read(audioBuffer, 0, audioBuffer.length);
-                            if (videoRecorder!=null) videoRecorder.recordAudioData(audioBuffer, numBytes);
+                            if (videoRecorder!=null) {
+                                videoRecorder.recordAudioData(audioBuffer, numBytes);
+                            }
                         }
                     }
                     catch(Exception ex) {
@@ -746,7 +772,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     void stopVideoRecording() {
         updateStatusTextWithFade("Stopped video recording");
         videoRecorder.endRecording();
-        videoRecorder = null; // this will stop the audio thread created in startVideoRecording
+        videoRecorder = null; // This will stop the audio thread created in startVideoRecording.
         showVideoTab = true;
     }
 
@@ -757,19 +783,19 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     int totalFrames = 0;
     Size previewSize = null;
 
-    @Override
-    public void onPreviewFrame(byte[] data, Camera _camera) {
+    @Override public void onPreviewFrame(byte[] data, Camera _camera) {
         boolean shouldRelease = false;
         if (imageProcessor!=null) {
             if (previewSize==null) previewSize = _camera.getParameters().getPreviewSize();
-            // when recording video, only show every third frame to reduce cpu time
+            // When recording video, only show every third frame to reduce cpu time.
             if (!isRecordingVideo() || (totalFrames % 3 == 0)) {
                 long diff = System.currentTimeMillis() - lastTS;
                 if (DEBUG) Log.i("WG", "Got preview frame " + diff + "ms after last view update");
                 // Make sure we don't replace an existing pending preview image, because then the
                 // replaced image's buffer won't get freed and we won't have a spare buffer, which
                 // slows down the frame rate significantly.
-                boolean queued = imageProcessor.processImageData(data, previewSize.width, previewSize.height);
+                boolean queued = imageProcessor.processImageData(
+                        data, previewSize.width, previewSize.height);
                 if (!queued) {
                     if (DEBUG) Log.i("WG", "Not queued, releasing buffer");
                     shouldRelease = true;
@@ -821,12 +847,15 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
 
             // trying to touch overlayView when the app is hidden can cause crashes
             if (!appVisible) return;
-            overlayView.setFlipHorizontal(CameraUtils.cameraIsFrontFacing(cameraId) && !imageProcessor.showingColorSchemeGrid());
+            overlayView.setFlipHorizontal(
+                    CameraUtils.cameraIsFrontFacing(cameraId) &&
+                    !imageProcessor.showingColorSchemeGrid());
             overlayView.invalidate();
             if (DEBUG) {
                 if (lastTS != 0) {
                     long diff = System.currentTimeMillis() - lastTS;
-                    Log.i("WG", "Invalidated frame, time since last: " + diff + "ms, render time: " + message.arg1 + "ms");
+                    Log.i("WG", "Invalidated frame, time since last: " + diff + "ms" +
+                            ", render time: " + message.arg1 + "ms");
                 }
                 lastTS = System.currentTimeMillis();
             }
@@ -841,8 +870,10 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
                     Camera.Size size = params.getPreviewSize();
                     int previewRate = params.getPreviewFrameRate();
 
-                    String msg = String.format("%.2f fps, render: %d ms, size: %dx%d, rate: %d, zoom: %d",
-                            frameRateManager.currentFramesPerSecond(), avgRender, size.width, size.height, previewRate, zoomRatio);
+                    String msg = String.format(
+                            "%.2f fps, render: %d ms, size: %dx%d, rate: %d, zoom: %d",
+                            frameRateManager.currentFramesPerSecond(), avgRender,
+                            size.width, size.height, previewRate, zoomRatio);
                     updateStatusTextWithFade(msg);
                 }
                 _renderTime1 = 0;
@@ -880,20 +911,16 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
                 camera = CameraUtils.openCamera(this.cameraId);
                 Camera.Parameters params = camera.getParameters();
 
-                // if we don't have callback buffers, limit the frame rate to avoid excessive preview callbacks
+                // If we don't have callback buffers, limit the frame rate to avoid excessive
+                // preview callbacks.
                 if (!CameraUtils.previewBuffersSupported()) {
-                    // HACK: for some reason, a preview rate of 10 works much better on the Droid than 15
-                    // Droids are 854x480, nothing else currently is...
-                    if (overlayView.getWidth()==854) {
-                        params.setPreviewFrameRate(10);
-                    }
-                    else {
-                        params.setPreviewFrameRate(15);
-                    }
+                    params.setPreviewFrameRate(15);
                 }
-                this.defaultPreviewFrameRate = this.currentPreviewFrameRate = params.getPreviewFrameRate();
+                this.defaultPreviewFrameRate = this.currentPreviewFrameRate =
+                        params.getPreviewFrameRate();
 
-                Camera.Size bestPreviewSize = CameraUtils.bestCameraSizeForWidthAndHeight(params, overlayView.getWidth(), overlayView.getHeight());
+                Camera.Size bestPreviewSize = CameraUtils.bestCameraSizeForWidthAndHeight(
+                        params, overlayView.getWidth(), overlayView.getHeight());
                 if (bestPreviewSize!=null) {
                     params.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
                 }
@@ -902,7 +929,8 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
                 this.previewSize = null;
                 camera.setPreviewDisplay(cameraView.getHolder());
 
-                // if preview buffers aren't available (requires Froyo or later), these methods will use the earlier non-buffer functionality
+                // If preview buffers aren't available (requires Froyo or later), these methods
+                // will use the earlier non-buffer functionality.
                 CameraUtils.createPreviewCallbackBuffers(camera, 2);
                 CameraUtils.setPreviewCallbackWithBuffer(camera, this);
 
@@ -927,7 +955,7 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
             // generates images to rotate them.
             imageProcessor.setOrientation(isRotated180 ?
                     CameraImageProcessor.Orientation.ROTATED_180 :
-                        CameraImageProcessor.Orientation.NORMAL);
+                    CameraImageProcessor.Orientation.NORMAL);
             updateColor();
             overlayView.setImageProcessor(imageProcessor);
             imageProcessor.start();
@@ -954,9 +982,9 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
     }
 
     void pauseCamera() {
-        // Prevent imageProcessor's bitmap from being modified while paused. This appears to fix a bug that was
-        // causing saved images to have horizontal lines through the top, presumably because the bitmap object was
-        // being modified during the save process.
+        // Prevent imageProcessor's bitmap from being modified while paused. This appears to fix
+        // a bug that was causing saved images to have horizontal lines through the top, presumably
+        // because the bitmap object was being modified during the save process.
         if (imageProcessor!=null) {
             imageProcessor.pause();
         }
@@ -978,43 +1006,42 @@ implements Camera.PreviewCallback, SurfaceHolder.Callback, OnColorChangedListene
         }
     }
 
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    @Override public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         this.cameraViewReady = true;
         startCameraIfVisible();
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        // all done in surfaceChanged
+    @Override public void surfaceCreated(SurfaceHolder holder) {
+        // All done in surfaceChanged.
     }
 
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
+    @Override public void surfaceDestroyed(SurfaceHolder holder) {
         this.cameraViewReady = false;
         stopCamera();
     }
 
-    @Override
-    public void onShutterButtonFocus(boolean pressed) {
+    @Override public void onShutterButtonFocus(boolean pressed) {
         int resID;
         if (pressed) {
             resID = R.drawable.btn_camera_shutter_pressed_holo;
             if (videoMode) {
-                resID = (isRecordingVideo()) ? R.drawable.btn_video_shutter_recording_pressed_holo : R.drawable.btn_video_shutter_pressed_holo;
+                resID = (isRecordingVideo()) ?
+                        R.drawable.btn_video_shutter_recording_pressed_holo :
+                        R.drawable.btn_video_shutter_pressed_holo;
             }
         }
         else {
             resID = R.drawable.btn_camera_shutter_holo;
             if (videoMode) {
-                resID = (isRecordingVideo()) ? R.drawable.btn_video_shutter_recording_holo : R.drawable.btn_video_shutter_holo;
+                resID = (isRecordingVideo()) ?
+                        R.drawable.btn_video_shutter_recording_holo :
+                        R.drawable.btn_video_shutter_holo;
             }
         }
         cameraActionButton.setImageResource(resID);
     }
 
-    @Override
-    public void onShutterButtonClick() {
+    @Override public void onShutterButtonClick() {
         handleCameraActionButton();
     }
 

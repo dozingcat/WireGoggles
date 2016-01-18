@@ -3,6 +3,7 @@ package com.dozingcatsoftware.eyeball;
 import java.io.File;
 import java.io.IOException;
 
+import com.dozingcatsoftware.WireGoggles.R;
 import com.dozingcatsoftware.eyeball.video.AbstractViewMediaActivity;
 import com.dozingcatsoftware.eyeball.video.ImageRecorder;
 import com.dozingcatsoftware.eyeball.video.MediaDirectory;
@@ -18,11 +19,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.dozingcatsoftware.WireGoggles.R;
-//import com.dozingcatsoftware.WireGogglesFree.R;
-
 public class ViewImageActivity extends AbstractViewMediaActivity {
-	
+
 	String imageMimeType = "image/png";
 	String imageFilePath;
 
@@ -31,9 +29,9 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupView(R.id.imageViewButtonBar);
-        
+
         imageFilePath = videoReader.getVideoDirectory().getPath() + ".png";
-        
+
         AndroidUtils.bindOnClickListener(this, findViewById(R.id.imageViewColorsButton), "showColorSchemeGrid"); // superclass method
         AndroidUtils.bindOnClickListener(this, this.findViewById(R.id.imageViewDeleteButton), "deleteImage");
         AndroidUtils.bindOnClickListener(this, this.findViewById(R.id.imageViewSaveButton), "saveImage");
@@ -41,14 +39,14 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
 
         loadImage();
     }
-    
+
 	public static Intent startActivityWithImageDirectory(Activity parent, String path) {
 		Intent intent = new Intent(parent, ViewImageActivity.class);
 		intent.putExtra("path", path);
 		parent.startActivityForResult(intent, 0);
 		return intent;
 	}
-	
+
     void loadImage() {
     	try {
         	if (frameData==null) frameData = new byte[videoProperties.getWidth() * videoProperties.getHeight()];
@@ -70,7 +68,7 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
     		this.finish();
     	}
     }
-    
+
     public void deleteImage() {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setMessage("Do you want to permanently delete this picture?").setCancelable(true);
@@ -78,9 +76,10 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
     	builder.setNegativeButton("Don't Delete", null);
     	builder.show();
     }
-    
+
     DialogInterface.OnClickListener performDeleteDialogAction = new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int which) {
+		@Override
+        public void onClick(DialogInterface dialog, int which) {
 			// delete directory and PNG file
 			boolean success = videoReader.getVideoDirectory().delete();
 			if (success) {
@@ -94,7 +93,7 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
 			finish();
 		}
     };
-    
+
     boolean saveImageAndProperties() {
     	WGUtils.savePicture(imageProcessor.getBitmap(), imageFilePath);
     	// update properties and thumbnail with color scheme
@@ -114,13 +113,13 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
     		return false;
     	}
     }
-    
+
     public void saveImage() {
     	boolean result = saveImageAndProperties();
     	String message = (result) ? "Picture saved" : "Error saving picture";
     	Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
-    
+
     public void shareImage() {
     	// save to pick up any color changes
     	if (this.colorSchemeChanged) {
@@ -137,7 +136,7 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
 		shareIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		startActivity(Intent.createChooser(shareIntent, "Share Picture Using:"));
     }
-    
+
     // launch gallery and terminate this activity, so when gallery activity finishes user will go back to main activity
     public void viewImageInGallery() {
     	Intent galleryIntent = new Intent(Intent.ACTION_VIEW);

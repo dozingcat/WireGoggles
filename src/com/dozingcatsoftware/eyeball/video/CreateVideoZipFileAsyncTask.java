@@ -51,6 +51,9 @@ public class CreateVideoZipFileAsyncTask extends
                 imageProcessor.getBitmap().compress(Bitmap.CompressFormat.PNG, 0, out);
 
                 out.closeEntry();
+                if (this.isCancelled()) {
+                    throw new InterruptedException();
+                }
                 double fractionDone = 1.0*i / numFrames;
                 publishProgress(new ProcessVideoTask.Progress(
                         ProcessVideoTask.MediaType.VIDEO, fractionDone));
@@ -62,6 +65,9 @@ public class CreateVideoZipFileAsyncTask extends
         catch (IOException ex) {
             Log.e("WG_ZIP", "Error creating zip file from video", ex);
             result = ProcessVideoTask.Result.FAILED;
+        }
+        catch(InterruptedException iex) {
+            result = ProcessVideoTask.Result.CANCELLED;
         }
         finally {
             try {

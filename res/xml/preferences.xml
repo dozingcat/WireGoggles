@@ -10,8 +10,12 @@
 		    android:key="@string/recordingQualityPrefsKey" android:defaultValue="LOW"
 		    android:entries="@array/recordingQualityLabels" android:entryValues="@array/recordingQualityValues"
 		    android:title="@string/recordingQualityPrefsTitle" />
+
+		<ListPreference
+		    android:key="@string/videoExportTypePrefsKey" android:defaultValue="WEBM"
+		    android:entries="@array/videoExportTypeLables" android:entryValues="@array/videoExportTypeValues"
+		    android:title="@string/videoExportTypePrefsTitle" />
 		
 	</PreferenceCategory>
-
 
 </PreferenceScreen>

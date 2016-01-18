@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -23,6 +24,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -100,7 +102,6 @@ public class VideoPlaybackActivity extends AbstractViewMediaActivity {
 
     Handler handler = new Handler();
     AsyncTask<ProcessVideoTask.Params, ProcessVideoTask.Progress, ProcessVideoTask.Result> encodeTask;
-    ExportType exportType = ExportType.WEBM;
 
     public static Intent startActivityWithVideoDirectory(Activity parent, String path) {
         Intent intent = new Intent(parent, VideoPlaybackActivity.class);
@@ -521,6 +522,7 @@ public class VideoPlaybackActivity extends AbstractViewMediaActivity {
 
     // Called from button action.
     public void encodeVideoWithReplaceCheck() {
+        final ExportType exportType = exportTypeFromPreferences();
         if (exportedFileExists(exportType)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(getString(exportType.exportConfirmReplaceMessageId)).setCancelable(true);
@@ -539,6 +541,7 @@ public class VideoPlaybackActivity extends AbstractViewMediaActivity {
 
     // Called from button action.
     public void shareVideo() {
+        final ExportType exportType = exportTypeFromPreferences();
         if (exportedFileExists(exportType)) {
             // We have to get the "content" URI in order for Youtube uploading to work, file URIs cause a weird exception.
             AndroidUtils.scanSavedMediaFile(this, pathForExportedFile(exportType), new AndroidUtils.MediaScannerCallback() {
@@ -553,6 +556,18 @@ public class VideoPlaybackActivity extends AbstractViewMediaActivity {
         }
         else {
             encodeVideo(exportType);
+        }
+    }
+
+    private ExportType exportTypeFromPreferences() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String val = prefs.getString(getString(R.string.videoExportTypePrefsKey), "WEBM");
+        try {
+            return ExportType.valueOf(val);
+        }
+        catch (IllegalArgumentException ex) {
+            Log.e("WG-Video", "Unknown export type: " + val, ex);
+            return ExportType.WEBM;
         }
     }
 }

@@ -13,4 +13,14 @@
         <item>HIGH</item>
     </string-array>
     
+    <string-array name="videoExportTypeLables">
+        <item>WebM video file</item>
+        <item>ZIP archive with a PNG image for each frame (may be very large)</item>
+    </string-array>
+
+    <string-array name="videoExportTypeValues">
+        <item>WEBM</item>
+        <item>ZIP</item>
+    </string-array>
+
 </resources>

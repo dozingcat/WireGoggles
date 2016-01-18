@@ -1,8 +1,6 @@
 package com.dozingcatsoftware.eyeball.video;
 
 import com.dozingcatsoftware.WireGoggles.R;
-//import com.dozingcatsoftware.WireGogglesFree.R;
-
 import com.dozingcatsoftware.eyeball.CameraImageProcessor;
 import com.dozingcatsoftware.eyeball.EyeballMain;
 import com.dozingcatsoftware.eyeball.OverlayView;
@@ -39,15 +37,14 @@ public class AbstractViewMediaActivity extends Activity {
 
 	public static final int DELETE_RESULT = Activity.RESULT_FIRST_USER;
 
-	@Override
-    public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
+
         imageProcessor = new CameraImageProcessor();
         imageProcessor.setSampleFactor(1);
-        
+
         videoReader = new VideoReader(getIntent().getStringExtra("path"));
         videoProperties = videoReader.getVideoProperties();
 
@@ -55,14 +52,14 @@ public class AbstractViewMediaActivity extends Activity {
         imageProcessor.setColorScheme(EyeballMain.COLORS[colorIndex]);
         imageProcessor.setUseBrightness(this.videoProperties.isSolidColor());
         imageProcessor.setUseNoiseFilter(this.videoProperties.useNoiseFilter());
-        
+
     }
-    
+
     protected void setupView(int buttonBarID) {
     	this.setContentView(R.layout.playback);
-    	
+
         chooseColorControlBar = findViewById(R.id.chooseColorControlBar);
-        
+
         solidColorCheckbox = (CheckBox)findViewById(R.id.solidColorCheckbox);
         solidColorCheckbox.setChecked(this.videoProperties.isSolidColor());
         AndroidUtils.bindOnClickListener(this, solidColorCheckbox, "solidColorCheckboxChanged");
@@ -74,14 +71,15 @@ public class AbstractViewMediaActivity extends Activity {
         overlayView = (OverlayView)findViewById(R.id.overlayView);
         overlayView.setImageProcessor(imageProcessor);
     	overlayView.setOnTouchListener(new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
+			@Override
+            public boolean onTouch(View v, MotionEvent event) {
 				handleMainViewTouch(event);
 				return true;
 			}
     	});
-        
+
         statusText = (TextView)findViewById(R.id.statusText);
-        
+
         buttonBar = findViewById(buttonBarID);
         buttonBar.setVisibility(View.VISIBLE);
     }
@@ -92,7 +90,7 @@ public class AbstractViewMediaActivity extends Activity {
     	this.frameData = null;
     	super.onDestroy();
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode==KeyEvent.KEYCODE_BACK) {
@@ -104,7 +102,7 @@ public class AbstractViewMediaActivity extends Activity {
 		}
     	return super.onKeyDown(keyCode, event);
     }
-    
+
     public void solidColorCheckboxChanged() {
     	if (imageProcessor!=null) {
     		boolean useSolidColor = solidColorCheckbox.isChecked();
@@ -113,7 +111,7 @@ public class AbstractViewMediaActivity extends Activity {
     		this.colorSchemeChanged = true;
     	}
     }
-    
+
     public void noiseFilterCheckboxChanged() {
     	if (imageProcessor!=null) {
     		boolean useNoiseFilter = noiseFilterCheckbox.isChecked();
@@ -122,12 +120,12 @@ public class AbstractViewMediaActivity extends Activity {
     		this.colorSchemeChanged = true;
     	}
     }
-    
+
     protected void drawCurrentFrame() {
     	imageProcessor.processCameraImage(frameData, videoProperties.getWidth(), videoProperties.getHeight());
-    	overlayView.invalidate();    	
+        overlayView.invalidate();
     }
-    
+
     public void showColorSchemeGrid() {
     	imageProcessor.setGridColorSchemes(EyeballMain.COLORS, EyeballMain.COLOR_GRID_ROWS);
 		buttonBar.setVisibility(View.INVISIBLE);
@@ -135,7 +133,7 @@ public class AbstractViewMediaActivity extends Activity {
 		overlayView.setFillScreen(true);
     	drawCurrentFrame();
     }
-    
+
     public void handleMainViewTouch(MotionEvent event) {
     	if (imageProcessor.showingColorSchemeGrid()) {
     		int gridCols = (int)Math.ceil(EyeballMain.COLORS.length / EyeballMain.COLOR_GRID_ROWS);
@@ -150,7 +148,7 @@ public class AbstractViewMediaActivity extends Activity {
     		overlayView.setFillScreen(false);
     	}
     }
-    
+
     void hideColorChooser() {
 		imageProcessor.setColorScheme(EyeballMain.COLORS[this.colorIndex]);
 		buttonBar.setVisibility(View.VISIBLE);

@@ -39,8 +39,10 @@
 	<string name="recordHighQualityVideoPrefsKey">recordHighQualityVideo</string>
 	<bool name="recordAudioDefault">true</bool>
 	<bool name="recordHighQualityVideoDefault">false</bool>
-	<string name="recordAudioPrefsTitle">Record Audio</string>
-	<string name="recordHighQualityVideoPrefsTitle">Record High Quality Video</string>
-	<string name="recordingQualityPrefsTitle">Video Recording Quality</string>
+	<string name="recordAudioPrefsTitle">Record audio</string>
+	<string name="recordingQualityPrefsTitle">Video recording quality</string>
 	<string name="recordHighQualityVideoPrefsMessageFormat" formatted="false">Video resolution will be %dx%d</string>
+
+	<string name="videoExportTypePrefsKey">videoExport</string>
+	<string name="videoExportTypePrefsTitle">Export recorded video as</string>
 </resources>

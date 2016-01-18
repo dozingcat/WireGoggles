@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.dozingcatsoftware.WireGoggles.R;
-//import com.dozingcatsoftware.WireGogglesFree.R;
 import com.dozingcatsoftware.eyeball.video.MediaDirectory;
 import com.dozingcatsoftware.eyeball.video.MediaProperties;
 

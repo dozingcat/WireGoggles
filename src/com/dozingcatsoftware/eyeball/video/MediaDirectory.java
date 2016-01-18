@@ -20,15 +20,26 @@ import android.graphics.Bitmap;
 
 public class MediaDirectory {
 
-	String path;
+	final String path;
+	final String directoryName;
 	Boolean hasThumbnail;
 
 	public MediaDirectory(String path) {
 		this.path = path;
+		this.directoryName = (new File(path)).getName();
 	}
 
 	public String getPath() {
 		return path;
+	}
+
+	public String getDirectoryName() {
+	    return directoryName;
+	}
+
+	// When naming files that will be sent elsewhere, add a prefix to tell where it came from.
+	public String getDirectoryNameForSharing() {
+	    return "WireGoggles_" + directoryName;
 	}
 
 	void createDirectoryIfNeeded() {

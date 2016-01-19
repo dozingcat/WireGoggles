@@ -5,10 +5,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.graphics.Bitmap;
-
 import com.dozingcatsoftware.eyeball.CameraImageProcessor.Orientation;
 import com.dozingcatsoftware.util.AndroidUtils;
+
+import android.graphics.Bitmap;
 
 public class VideoRecorder {
 
@@ -69,6 +69,10 @@ public class VideoRecorder {
 		videoProperties.setColorScheme(colorScheme);
 		videoProperties.setSolidColor(solidColor);
 		videoProperties.setUseNoiseFilter(noiseFilter);
+	}
+
+	public MediaDirectory getMediaDirectory() {
+	    return videoDirectory;
 	}
 
 	public void recordFrame(byte[] data) throws IOException {

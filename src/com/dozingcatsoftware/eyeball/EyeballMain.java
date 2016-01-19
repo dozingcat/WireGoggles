@@ -124,7 +124,13 @@ public class EyeballMain extends Activity implements
     boolean videoMode = false;
     VideoRecorder videoRecorder;
     AudioRecord audioRecorder;
-    static long VIDEO_TIME_LIMIT_MS = 60000;
+    final static long VIDEO_TIME_LIMIT_MS = 60000;
+
+    Runnable cornerImageClickHandler;
+    // Fraction of width and height used to show captured image after taking a picture or video.
+    final static double CORNER_IMAGE_RATIO = 0.34;
+    // First frame of the video being recorded, will be set as the corner image when recording ends.
+    Bitmap cornerBitmapForVideo;
 
     // Set to true after recording video, so library tab will start with videos selected.
     boolean showVideoTab = false;
@@ -422,14 +428,12 @@ public class EyeballMain extends Activity implements
             case ACTIVITY_SELECT_IMAGE:
                 if (resultCode == RESULT_OK) {
                     (new Thread() {
-                        @Override
-                        public void run() {
+                        @Override public void run() {
                             try {
                                 final String imageDirectory = (new ProcessPictureOperation())
                                         .processPicture(EyeballMain.this, intent.getData());
                                 handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
+                                    @Override public void run() {
                                         ViewImageActivity.startActivityWithImageDirectory(
                                                 EyeballMain.this, imageDirectory);
                                     }
@@ -488,7 +492,9 @@ public class EyeballMain extends Activity implements
                     overlayView.setFillScreen(false);
                 }
                 else if (overlayView.isPointInCornerImage(event.getX(), event.getY())) {
-                    viewLastSavedImage();
+                    if (cornerImageClickHandler != null) {
+                        cornerImageClickHandler.run();
+                    }
                 }
                 else {
                     toggleButtonBarVisibility();
@@ -551,23 +557,29 @@ public class EyeballMain extends Activity implements
     }
 
     void saveCurrentBitmap() {
-        // Aave image in separate thread so UI stays responsive.
+        // Save image in separate thread so UI stays responsive.
         pauseCamera();
         final Bitmap bitmap = imageProcessor.getBitmap();
         updateStatusTextWithFade("Saving...");
         (new Thread() {
-            @Override
-            public void run() {
+            @Override public void run() {
                 final String savedPath = _saveBitmap(bitmap);
                 handler.post(new Runnable() {
-                    @Override
-                    public void run() {
+                    @Override public void run() {
                         resumeCamera();
                         saveInProgress = false;
                         if (savedPath!=null) {
                             updateStatusTextWithFade("Picture saved");
                             lastSavedImageDirectory = savedPath;
-                            showCornerImageCopyingBitmap(bitmap);
+                            showCornerImage(createCornerImageFromBitmap(bitmap));
+                            // Open ViewImageActivity if the corner image is clicked. Yes, there
+                            // are a bit too many nested classes here.
+                            cornerImageClickHandler = new Runnable() {
+                                @Override public void run() {
+                                    ViewImageActivity.startActivityWithImageDirectory(
+                                            EyeballMain.this, lastSavedImageDirectory);
+                                }
+                            };
                         }
                         else {
                             updateStatusTextWithFade("Error saving image");
@@ -603,38 +615,31 @@ public class EyeballMain extends Activity implements
         }
     }
 
-    Runnable hideCornerImageCallback = new Runnable() {
-        @Override
-        public void run() {
-            hideCornerImage();
-        }
-    };
-
-    void showCornerImageCopyingBitmap(Bitmap bitmap) {
-        // Copy to a smaller bitmap, to reduce memory usage.
-        float ratio = 0.34f;
-
+    // Copy to a smaller bitmap, to reduce memory usage.
+    Bitmap createCornerImageFromBitmap(Bitmap bitmap) {
         Bitmap smallBitmap = Bitmap.createBitmap(
-                (int)(ratio*overlayView.getWidth()),
-                (int)(ratio*overlayView.getHeight()),
+                (int)(CORNER_IMAGE_RATIO*overlayView.getWidth()),
+                (int)(CORNER_IMAGE_RATIO*overlayView.getHeight()),
                 Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(smallBitmap);
         Rect dstRect = new Rect(0, 0, smallBitmap.getWidth(), smallBitmap.getHeight());
         canvas.drawBitmap(bitmap, null, dstRect, null);
+        return smallBitmap;
+    }
 
-        overlayView.setCornerImage(smallBitmap);
-        overlayView.setCornerImageRatio(ratio);
+    Runnable hideCornerImageCallback = new Runnable() {
+        @Override public void run() {
+            overlayView.setCornerImage(null);
+            overlayView.invalidate();
+            cornerImageClickHandler = null;
+        }
+    };
+
+    void showCornerImage(Bitmap bitmap) {
+        overlayView.setCornerImage(bitmap);
+        overlayView.setCornerImageRatio(CORNER_IMAGE_RATIO);
         // Hide image after 5 seconds (TODO: reset if user takes another picture).
         handler.postDelayed(hideCornerImageCallback, 5000);
-    }
-
-    void hideCornerImage() {
-        overlayView.setCornerImage(null);
-        overlayView.invalidate();
-    }
-
-    void viewLastSavedImage() {
-        ViewImageActivity.startActivityWithImageDirectory(this, lastSavedImageDirectory);
     }
 
     public void solidColorCheckboxChanged() {
@@ -715,6 +720,7 @@ public class EyeballMain extends Activity implements
         videoRecorder = new VideoRecorder(videoPath, previewSize.width, previewSize.height,
                 getRecordingQuality(), this.color, this.useSolidColor, this.useNoiseFilter,
                 imageProcessor.getOrientation());
+        cornerBitmapForVideo = null;
 
         audioRecorder = null;
         int audioSampleSize = 44100;
@@ -772,8 +778,21 @@ public class EyeballMain extends Activity implements
     void stopVideoRecording() {
         updateStatusTextWithFade("Stopped video recording");
         videoRecorder.endRecording();
+        final String videoPath = videoRecorder.getMediaDirectory().getPath();
         videoRecorder = null; // This will stop the audio thread created in startVideoRecording.
         showVideoTab = true;
+
+        if (cornerBitmapForVideo != null) {
+            showCornerImage(cornerBitmapForVideo);
+            // Go to VideoPlaybackActivity if the corner image is clicked.
+            cornerImageClickHandler = new Runnable() {
+                @Override public void run() {
+                    VideoPlaybackActivity.startActivityWithVideoDirectory(
+                            EyeballMain.this, videoPath);
+                }
+            };
+            cornerBitmapForVideo = null;
+        }
     }
 
     public void gotoVideoLibrary() {
@@ -841,8 +860,15 @@ public class EyeballMain extends Activity implements
                 saveCurrentBitmap();
             }
 
-            if (isRecordingVideo() && !videoRecorder.hasThumbnailImage()) {
-                videoRecorder.storeThumbnailImage(imageProcessor.getBitmap());
+            if (isRecordingVideo()) {
+                if (!videoRecorder.hasThumbnailImage()) {
+                    // FIXME: This shouldn't be on the main thread.
+                    videoRecorder.storeThumbnailImage(imageProcessor.getBitmap());
+                }
+                if (cornerBitmapForVideo == null) {
+                    // Save the image to show in the corner when recording ends.
+                    cornerBitmapForVideo = createCornerImageFromBitmap(imageProcessor.getBitmap());
+                }
             }
 
             // trying to touch overlayView when the app is hidden can cause crashes

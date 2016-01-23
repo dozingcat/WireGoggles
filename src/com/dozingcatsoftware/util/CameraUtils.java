@@ -39,25 +39,34 @@ public class CameraUtils {
     	}
 	}
 
-	/** Attempts to find the camera preview size as close as possible to the given width and height. If the Android API
-	 * does not support retrieving available camera preview sizes, this method returns null. Otherwise, returns the
-	 * camera preview size that minimizes the sum of the differences between the actual and requested height and width.
+	/**
+	 * Attempts to find the camera preview size as close as possible to the given width and height.
+	 * If the Android API does not support retrieving available camera preview sizes, this method
+	 * returns null. Otherwise, returns the camera preview size that minimizes the sum of the
+	 * differences between the actual and requested height and width.
 	 */
 	public static Camera.Size bestCameraSizeForWidthAndHeight(Camera.Parameters params, int width, int height) {
-		List<Camera.Size> previewSizes = previewSizesForCameraParameters(params);
-		if (previewSizes==null || previewSizes.size()==0) return null;
+	    // Occasionally width can be less than height, if the device hasn't had time to complete
+	    // the rotation to landscape when this method is called. Swap the values in that case.
+	    if (width < height) {
+	        int tmp = width;
+	        width = height;
+	        height = tmp;
+	    }
+	    List<Camera.Size> previewSizes = previewSizesForCameraParameters(params);
+	    if (previewSizes==null || previewSizes.size()==0) return null;
 
-    	Camera.Size bestSize = null;
-    	int bestDiff = 0;
-    	// find the preview size that minimizes the difference between width and height
-		for(Camera.Size size : previewSizes) {
-			int diff = Math.abs(size.width - width) + Math.abs(size.height - height);
-			if (bestSize==null || diff<bestDiff) {
-				bestSize = size;
-				bestDiff = diff;
-			}
-		}
-		return bestSize;
+	    Camera.Size bestSize = null;
+	    int bestDiff = 0;
+	    // Find the preview size that minimizes the difference between width and height.
+	    for(Camera.Size size : previewSizes) {
+	        int diff = Math.abs(size.width - width) + Math.abs(size.height - height);
+	        if (bestSize==null || diff<bestDiff) {
+	            bestSize = size;
+	            bestDiff = diff;
+	        }
+	    }
+	    return bestSize;
 	}
 
 	/** Updates the Camera object's preview size to the nearest match for the given width and height.

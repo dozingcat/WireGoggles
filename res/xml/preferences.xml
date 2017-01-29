@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory android:title="Recording Options">
-	
+
 		<CheckBoxPreference android:key="@string/recordAudioPrefsKey" android:defaultValue="@bool/recordAudioDefault" 
 			android:title="@string/recordAudioPrefsTitle" />
 
@@ -17,5 +17,11 @@
 		    android:title="@string/videoExportTypePrefsTitle" />
 		
 	</PreferenceCategory>
+
+    <PreferenceCategory android:title="Display Options">
+        <CheckBoxPreference android:key="@string/controlsOnLeftPrefsKey" android:defaultValue="false"
+            android:title="@string/controlsOnLeftPrefsTitle" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

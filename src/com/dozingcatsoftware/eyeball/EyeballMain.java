@@ -12,6 +12,7 @@ import com.dozingcatsoftware.util.CameraUtils;
 import com.dozingcatsoftware.util.FrameRateManager;
 import com.dozingcatsoftware.util.ShutterButton;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +31,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -39,6 +41,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class EyeballMain extends Activity implements
@@ -90,7 +93,8 @@ public class EyeballMain extends Activity implements
 
     CameraImageProcessor imageProcessor;
 
-    View buttonBar, verticalButtonBar;
+    View buttonBar;
+    LinearLayout verticalButtonBar;
     TextView statusText;
 
     View customColorEditView;
@@ -171,7 +175,7 @@ public class EyeballMain extends Activity implements
         statusText = (TextView)findViewById(R.id.statusText);
         updateStatusTextWithFade(statusText.getText());
         buttonBar = findViewById(R.id.buttonBar);
-        verticalButtonBar = findViewById(R.id.verticalButtonBar);
+        verticalButtonBar = (LinearLayout)findViewById(R.id.verticalButtonBar);
 
         overlayView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -255,6 +259,7 @@ public class EyeballMain extends Activity implements
 
         useNoiseFilter = (prefs.getInt(NOISE_FILTER_PREFS_KEY, 0) > 0);
         noiseFilterCheckbox.setChecked(useNoiseFilter);
+        updateControlsPosition();
 
         appVisible = true;
         // Hide color grid controls because we may have been showing them before.
@@ -323,6 +328,15 @@ public class EyeballMain extends Activity implements
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(key, value);
         editor.commit();
+    }
+
+    @SuppressLint("RtlHardcoded")
+    void updateControlsPosition() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean controlsOnLeft = prefs.getBoolean(getString(R.string.controlsOnLeftPrefsKey), false);
+        FrameLayout.LayoutParams controlLayout = (FrameLayout.LayoutParams)verticalButtonBar.getLayoutParams();
+        controlLayout.gravity = controlsOnLeft ? Gravity.LEFT : Gravity.RIGHT;
+        verticalButtonBar.setLayoutParams(controlLayout);
     }
 
     public void toggleButtonBarVisibility() {

@@ -3,9 +3,13 @@ package com.dozingcatsoftware.eyeball;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.dozingcatsoftware.eyeball.video.ImageRecorder;
+import com.dozingcatsoftware.util.AndroidUtils;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -13,9 +17,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
-
-import com.dozingcatsoftware.eyeball.video.ImageRecorder;
-import com.dozingcatsoftware.util.AndroidUtils;
 
 public class ProcessPictureOperation {
 
@@ -41,38 +42,15 @@ public class ProcessPictureOperation {
     public String processPicture(Context context, Uri uri, int maxWidth, int maxHeight,
             int colorIndex, boolean useSolidColor, boolean useNoiseFilter)
             throws IOException, FileNotFoundException {
-        /*
-        Bitmap bitmap = AndroidUtils.scaledBitmapFromURIWithMaximumSize(context, uri, maxWidth, maxHeight);
-        int bitmapWidth = bitmap.getWidth();
-        int bitmapHeight = bitmap.getHeight();
-        byte[] brightness = new byte[bitmapWidth*bitmapHeight];
-        Log.i("PPO", "Read bitmap");
-        // TODO: native code
-        int index = 0;
-        for(int r=0; r<bitmapHeight; r++) {
-            for(int c=0; c<bitmapWidth; c++) {
-                int color = bitmap.getPixel(c, r);
-                // Y = 0.299R + 0.587G + 0.114B
-                brightness[index++] = (byte)(
-                        0.299 * ((color>>16) & 0xff) +
-                        0.587 * ((color>>8)  & 0xff) +
-                        0.114 * (color & 0xff));
-            }
-        }
-        Log.i("PPO", "Computed brightness");
-        bitmap.recycle();
-        bitmap = null;
-        */
         BrightnessImage image = brightnessImageFromUri(context, uri, maxWidth, maxHeight);
-
+        long t1 = System.currentTimeMillis();
         CameraImageProcessor imageProcessor = new CameraImageProcessor();
         imageProcessor.setSampleFactor(1);
         imageProcessor.setUseBrightness(useSolidColor);
         imageProcessor.setUseNoiseFilter(useNoiseFilter);
-        // TODO: read from preferences, also have preference to enable receiver at all
         imageProcessor.setColorScheme(EyeballMain.COLORS[colorIndex]);
         imageProcessor.processCameraImage(image.data, image.width, image.height);
-        Log.i("PPO", "Computed edges");
+        if (DEBUG) Log.i("PPO", "Computed edges: " + (System.currentTimeMillis() - t1));
 
         String imageDirectory = WGUtils.pathForNewImageDirectory();
         ImageRecorder recorder = new ImageRecorder(context, imageDirectory);
@@ -82,7 +60,10 @@ public class ProcessPictureOperation {
         return imageDirectory;
     }
 
-    static int MAX_CHUNK_SIZE = 256;
+    // Making this larger reduces the number of calls to BitmapRegionDecoder.decodeRegion.
+    // Those calls are expensive because it has to mostly reparse the image every time.
+    // But it can't be too large or we run out of memory creating the chunk bitmap.
+    static int MAX_CHUNK_SIZE = 800;
 
     static class BrightnessImage {
         public int width, height;
@@ -91,6 +72,8 @@ public class ProcessPictureOperation {
 
     static BrightnessImage brightnessImageFromUri(Context context, Uri uri, int maxWidth, int maxHeight)
             throws FileNotFoundException, IOException {
+        if (DEBUG) Log.i("PPO", "Brightness image start");
+        long t1 = System.currentTimeMillis();
         BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(context.getContentResolver().openInputStream(uri), true);
         int imageWidth = regionDecoder.getWidth();
         int imageHeight = regionDecoder.getHeight();
@@ -103,8 +86,12 @@ public class ProcessPictureOperation {
             scaledWidth = scaledWH[0];
             scaledHeight = scaledWH[1];
         }
+        int sampleFactor = imageWidth / scaledWidth;
 
         if (DEBUG) Log.i("PPO", String.format("Scaling from (%d,%d) to (%d,%d)", imageWidth, imageHeight, scaledWidth, scaledHeight));
+        if (DEBUG) Log.i("PPO", "sampleFactor="+sampleFactor);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = sampleFactor;
 
         // partition the input into blocks no more than MAX_CHUNK_SIZE width/height
         int wblocks = (int)Math.ceil(1.0*imageWidth/MAX_CHUNK_SIZE);
@@ -114,6 +101,7 @@ public class ProcessPictureOperation {
         int[] imageHeightPartitions = AndroidUtils.equalIntPartitions(imageHeight, hblocks);
         int[] scaledWidthPartitions = AndroidUtils.equalIntPartitions(scaledWidth, wblocks);
         int[] scaledHeightPartitions = AndroidUtils.equalIntPartitions(scaledHeight, hblocks);
+        int[] tempPixels = null;
 
         BrightnessImage result = new BrightnessImage();
         result.width = scaledWidth;
@@ -133,16 +121,24 @@ public class ProcessPictureOperation {
                 int scaledXStart = scaledWidthPartitions[w];
                 int scaledBlockWidth = scaledWidthPartitions[w+1] - scaledXStart;
 
-                Bitmap sourceBitmap = regionDecoder.decodeRegion(region, null);
+                long t10 = System.currentTimeMillis();
+                Bitmap sourceBitmap = regionDecoder.decodeRegion(region, options);
                 Bitmap scaledBitmap = Bitmap.createScaledBitmap(sourceBitmap, scaledBlockWidth, scaledBlockHeight, false);
+                long t11 = System.currentTimeMillis();
                 sourceBitmap = null;
-                if (DEBUG) Log.i("PPO", String.format("Block: (%d, %d, %d, %d) to (%d+%d, %d+%d)",
+                if (DEBUG && w==0) Log.i("PPO", String.format("Block: (%d, %d, %d, %d) to (%d+%d, %d+%d)",
                         region.left, region.top, region.right, region.bottom, scaledXStart, scaledBlockWidth, scaledYStart, scaledBlockHeight));
 
+                if (tempPixels == null || tempPixels.length < scaledBitmap.getWidth()*scaledBitmap.getHeight()) {
+                    tempPixels = new int[scaledBitmap.getWidth()*scaledBitmap.getHeight()];
+                }
+                // Copying the pixels to an array is much faster than calling Bitmap.getPixel.
+                scaledBitmap.getPixels(tempPixels, 0, scaledBitmap.getWidth(), 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight());
+                int bitmapPixelIndex = 0;
                 for(int r=0; r<scaledBlockHeight; r++) {
                     int index = (scaledYStart+r) * scaledWidth + scaledXStart;
                     for(int c=0; c<scaledBlockWidth; c++) {
-                        int color = scaledBitmap.getPixel(c, r);
+                        int color = tempPixels[bitmapPixelIndex++];
                         // Y = 0.299R + 0.587G + 0.114B
                         data[index++] = (byte)(
                                 0.299 * ((color>>16) & 0xff) +
@@ -150,9 +146,12 @@ public class ProcessPictureOperation {
                                 0.114 * (color & 0xff));
                     }
                 }
+                long t12 = System.currentTimeMillis();
+                if (DEBUG && w==0) Log.i("PPO", "Block processing times: " + (t11-t10) + " " + (t12-t11));
                 scaledBitmap = null; // could just allocate once and draw into it
             }
         }
+        Log.i("PPO", "BRIGHTNESS IMAGE TIME: " + (System.currentTimeMillis() - t1));
 
         return result;
     }

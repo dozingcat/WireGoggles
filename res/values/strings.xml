@@ -47,6 +47,9 @@
 	<string name="videoExportTypePrefsKey">videoExport</string>
 	<string name="videoExportTypePrefsTitle">Export recorded video as</string>
 
-	<string name="controlsOnLeftPrefsKey">controlsOnLeft</string>
+    <string name="autoConvertPicturesPrefsKey">autoConvertPictures</string>
+    <string name="autoConvertPicturesPrefsTitle">Automatically convert camera pictures</string>
+
+		<string name="controlsOnLeftPrefsKey">controlsOnLeft</string>
     <string name="controlsOnLeftPrefsTitle">Controls on left</string>
 </resources>

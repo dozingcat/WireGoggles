@@ -126,7 +126,7 @@ public class ProcessPictureOperation {
                 Bitmap scaledBitmap = Bitmap.createScaledBitmap(sourceBitmap, scaledBlockWidth, scaledBlockHeight, false);
                 long t11 = System.currentTimeMillis();
                 sourceBitmap = null;
-                if (DEBUG && w==0) Log.i("PPO", String.format("Block: (%d, %d, %d, %d) to (%d+%d, %d+%d)",
+                if (DEBUG) Log.i("PPO", String.format("Block: (%d, %d, %d, %d) to (%d+%d, %d+%d)",
                         region.left, region.top, region.right, region.bottom, scaledXStart, scaledBlockWidth, scaledYStart, scaledBlockHeight));
 
                 if (tempPixels == null || tempPixels.length < scaledBitmap.getWidth()*scaledBitmap.getHeight()) {
@@ -147,7 +147,7 @@ public class ProcessPictureOperation {
                     }
                 }
                 long t12 = System.currentTimeMillis();
-                if (DEBUG && w==0) Log.i("PPO", "Block processing times: " + (t11-t10) + " " + (t12-t11));
+                if (DEBUG) Log.i("PPO", "Block processing times: " + (t11-t10) + " " + (t12-t11));
                 scaledBitmap = null; // could just allocate once and draw into it
             }
         }

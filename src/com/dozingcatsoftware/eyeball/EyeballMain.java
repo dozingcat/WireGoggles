@@ -14,9 +14,12 @@ import com.dozingcatsoftware.util.ShutterButton;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -25,6 +28,7 @@ import android.hardware.Camera.Size;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -43,6 +47,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EyeballMain extends Activity implements
         Camera.PreviewCallback,
@@ -264,9 +269,87 @@ public class EyeballMain extends Activity implements
         appVisible = true;
         // Hide color grid controls because we may have been showing them before.
         chooseColorControlBar.setVisibility(View.GONE);
-        startCameraIfVisible();
+        if (hasCameraPermission()) {
+            startCameraIfVisible();
+        }
+        else {
+            PermissionsChecker.requestCameraAndStoragePermissions(this);
+        }
     }
 
+    @Override public void onRequestPermissionsResult(
+            int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PermissionsChecker.CAMERA_AND_STORAGE_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startCameraIfVisible();
+                }
+                else {
+                    Toast.makeText(this, getString(R.string.cameraPermissionRequired), Toast.LENGTH_LONG).show();
+                }
+                break;
+            case PermissionsChecker.STORAGE_FOR_PHOTO_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Don't actually take the picture.
+                }
+                else {
+                    showPermissionNeededDialog(getString(R.string.storagePermissionRequiredToTakePhoto));
+                }
+                break;
+            case PermissionsChecker.STORAGE_FOR_LIBRARY_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    gotoVideoLibrary();
+                }
+                else {
+                    showPermissionNeededDialog(getString(R.string.storagePermissionRequiredToGoToLibrary));
+                }
+                break;
+            case PermissionsChecker.STORAGE_FOR_CONVERT_PICTURE_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    chooseGalleryImage();
+                }
+                else {
+                    showPermissionNeededDialog(getString(R.string.storagePermissionRequiredToGoToLibrary));
+                }
+                break;
+            case PermissionsChecker.RECORD_AUDIO_FOR_VIDEO_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Don't start recording.
+                }
+                else {
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                    editor.putBoolean(getString(R.string.recordAudioPrefsKey), false);
+                    editor.apply();
+                    Toast.makeText(this, getString(R.string.disabledAudioDueToPermissionDenied), Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+    private boolean hasCameraPermission() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                PermissionsChecker.hasCameraPermission(this);
+    }
+
+    private boolean hasStoragePermission() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                PermissionsChecker.hasStoragePermission(this);
+    }
+
+    private boolean hasRecordAudioPermission() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                PermissionsChecker.hasRecordAudioPermission(this);
+    }
+
+    private void showPermissionNeededDialog(String msg) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this).setMessage(msg);
+        dialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
 
     /**
      * Droid and possibly other devices have a "camera" button, which will save the picture or
@@ -430,6 +513,10 @@ public class EyeballMain extends Activity implements
     final static int ACTIVITY_SELECT_IMAGE = 1;
 
     public void chooseGalleryImage() {
+        if (!hasStoragePermission()) {
+            PermissionsChecker.requestStoragePermissionsToConvertPicture(this);
+            return;
+        }
         Intent i = new Intent(
                 Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
@@ -564,6 +651,10 @@ public class EyeballMain extends Activity implements
     // This method is called by the shutter button and just sets a flag so that saveCurrentBitmap
     // will be called when the next image is received.
     void saveNextBitmap() {
+        if (!hasStoragePermission()) {
+            PermissionsChecker.requestStoragePermissionsToTakePhoto(this);
+            return;
+        }
         if (imageProcessor==null || saveInProgress) return;
         saveInProgress = saveNextImageReceived = true;
         // FIXME: Always save images at highest quality, imageProcessor.setSampleFactor(1) here
@@ -728,8 +819,15 @@ public class EyeballMain extends Activity implements
         return (videoRecorder!=null);
     }
 
-
     void startVideoRecording() {
+        if (!hasStoragePermission()) {
+            PermissionsChecker.requestStoragePermissionsToTakePhoto(this);
+            return;
+        }
+        if (this.shouldRecordAudio() && !hasRecordAudioPermission()) {
+            PermissionsChecker.requestRecordAudioPermissionForVideo(this);
+            return;
+        }
         String videoPath = WGUtils.pathForNewVideoRecording();
         videoRecorder = new VideoRecorder(videoPath, previewSize.width, previewSize.height,
                 getRecordingQuality(), this.color, this.useSolidColor, this.useNoiseFilter,
@@ -784,7 +882,6 @@ public class EyeballMain extends Activity implements
             audioRecorder.startRecording();
             audioRecordingThread.start();
         }
-
         // TODO: disable most controls while recording in progress?
         updateStatusTextWithFade("Started video recording");
     }
@@ -810,6 +907,10 @@ public class EyeballMain extends Activity implements
     }
 
     public void gotoVideoLibrary() {
+        if (!hasStoragePermission()) {
+            PermissionsChecker.requestStoragePermissionsToGoToLibrary(this);
+            return;
+        }
         MediaTabActivity.startActivity(this, showVideoTab);
     }
 

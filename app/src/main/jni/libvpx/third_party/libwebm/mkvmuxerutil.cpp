@@ -19,6 +19,7 @@
 #include <cstring>
 #include <ctime>
 #include <new>
+#include <unistd.h>
 
 #include "mkvwriter.hpp"
 #include "webmids.hpp"

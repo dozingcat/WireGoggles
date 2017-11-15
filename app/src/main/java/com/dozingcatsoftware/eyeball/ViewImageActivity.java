@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
 
 	String imageMimeType = "image/png";
 	String imageFilePath;
+	Handler handler = new Handler();
 
     /** Called when the activity is first created. */
     @Override
@@ -128,13 +130,22 @@ public class ViewImageActivity extends AbstractViewMediaActivity {
         		return;
         	}
     	}
-		Intent shareIntent = new Intent(Intent.ACTION_SEND);
-		Uri imageURI = Uri.fromFile(new File(imageFilePath));
-		shareIntent.setType(imageMimeType);
-		shareIntent.putExtra(Intent.EXTRA_STREAM, imageURI);
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "WireGoggles Picture");
-		shareIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		startActivity(Intent.createChooser(shareIntent, "Share Picture Using:"));
+        // Use media scanner to get a content URI, file URIs don't work in Android N or later:
+        // https://developer.android.com/about/versions/nougat/android-7.0-changes.html#sharing-files
+        AndroidUtils.scanSavedMediaFile(this, imageFilePath, new AndroidUtils.MediaScannerCallback() {
+            @Override public void mediaScannerCompleted(String scanPath, final Uri scanURI) {
+                handler.post(new Runnable() {
+                    @Override public void run() {
+                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                        shareIntent.setType(imageMimeType);
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, scanURI);
+                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "WireGoggles Picture");
+                        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(Intent.createChooser(shareIntent, "Share Picture Using:"));
+                    }
+                });
+            }
+        });
     }
 
     // launch gallery and terminate this activity, so when gallery activity finishes user will go back to main activity

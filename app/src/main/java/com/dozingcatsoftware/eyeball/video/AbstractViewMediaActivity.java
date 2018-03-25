@@ -94,7 +94,7 @@ public class AbstractViewMediaActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode==KeyEvent.KEYCODE_BACK) {
-			if (imageProcessor == null && imageProcessor.showingColorSchemeGrid()) {
+			if (imageProcessor != null && imageProcessor.showingColorSchemeGrid()) {
 				// if selecting colors, hide selection grid and restore original color scheme
 				hideColorChooser();
 				return true;

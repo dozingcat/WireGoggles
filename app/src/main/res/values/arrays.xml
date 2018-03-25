@@ -2,9 +2,9 @@
 <resources>
 
     <string-array name="recordingQualityLabels" formatted="false">
-        <item>Low (%dx%d)</item>
-        <item>Medium (%dx%d)</item>
-        <item>High (%dx%d)</item>
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
     </string-array>
     
     <string-array name="recordingQualityValues">

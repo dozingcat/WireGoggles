@@ -94,7 +94,7 @@ public class AbstractViewMediaActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode==KeyEvent.KEYCODE_BACK) {
-			if (imageProcessor.showingColorSchemeGrid()) {
+			if (imageProcessor != null && imageProcessor.showingColorSchemeGrid()) {
 				// if selecting colors, hide selection grid and restore original color scheme
 				hideColorChooser();
 				return true;
@@ -135,7 +135,7 @@ public class AbstractViewMediaActivity extends Activity {
     }
 
     public void handleMainViewTouch(MotionEvent event) {
-    	if (imageProcessor.showingColorSchemeGrid()) {
+    	if (imageProcessor != null && imageProcessor.showingColorSchemeGrid()) {
     		int gridCols = (int)Math.ceil(EyeballMain.COLORS.length / EyeballMain.COLOR_GRID_ROWS);
     		int row = (int)(event.getY() / (overlayView.getHeight() / EyeballMain.COLOR_GRID_ROWS));
     		int col = (int)(event.getX() / (overlayView.getWidth() / gridCols));

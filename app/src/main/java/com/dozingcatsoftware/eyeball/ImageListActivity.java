@@ -52,9 +52,13 @@ public class ImageListActivity extends Activity {
 				ViewImageActivity.startActivityWithImageDirectory(ImageListActivity.this, imageDirectories.get(position).getPath());
 			}
 		});
+    }
+
+    @Override public void onResume() {
+    	super.onResume();
 		readImageThumbnails();
 		displayGrid();
-    }
+	}
 
 	void readImageThumbnails() {
 		imageDirectories = MediaDirectory.videoDirectoriesInDirectory(WGUtils.savedImageDirectory);
@@ -87,14 +91,4 @@ public class ImageListActivity extends Activity {
 
 		System.gc(); // seems to avoid OutOfMemoryErrors when selecting image after deleting earlier image
 	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode==ViewImageActivity.DELETE_RESULT) {
-			imageDirectories.remove(selectedGridIndex);
-			imageDirectoryMaps.remove(selectedGridIndex);
-			displayGrid();
-		}
-	}
-
 }

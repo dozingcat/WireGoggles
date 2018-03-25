@@ -443,6 +443,9 @@ public class EyeballMain extends Activity implements
     }
 
     public void chooseColor() {
+        if (imageProcessor == null) {
+            return;
+        }
         imageProcessor.setGridColorSchemes(COLORS, COLOR_GRID_ROWS);
         // Hide buttons and picture-in-picture.
         buttonBar.setVisibility(View.INVISIBLE);

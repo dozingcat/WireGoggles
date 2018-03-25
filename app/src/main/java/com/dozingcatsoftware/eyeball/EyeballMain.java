@@ -372,7 +372,7 @@ public class EyeballMain extends Activity implements
                 customColorEditView.setVisibility(View.INVISIBLE);
                 return true;
             }
-            else if (imageProcessor.showingColorSchemeGrid()) {
+            else if (imageProcessor != null && imageProcessor.showingColorSchemeGrid()) {
                 // If selecting colors, hide selection grid and restore original color scheme.
                 updateColor();
                 chooseColorControlBar.setVisibility(View.GONE);
@@ -802,7 +802,9 @@ public class EyeballMain extends Activity implements
 
     public void gotoPreferences() {
         // Pass camera preview size so preferences screen can show video resolutions.
-        WGPreferences.startActivity(this, previewSize.width, previewSize.height);
+        WGPreferences.startActivity(this,
+                previewSize != null ? previewSize.width : 0,
+                previewSize != null ? previewSize.height : 0);
     }
 
     public void toggleVideoRecording() {

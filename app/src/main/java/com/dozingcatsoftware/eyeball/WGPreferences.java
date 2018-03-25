@@ -21,8 +21,10 @@ public class WGPreferences extends PreferenceActivity {
 		int width = this.getIntent().getIntExtra("width", 0);
 		int height = this.getIntent().getIntExtra("height", 0);
 
-		RecordingQualityPreference qualityPref = (RecordingQualityPreference)findPreference(getString(R.string.recordingQualityPrefsKey));
-		qualityPref.updateDisplaySize(width, height);
+		RecordingQualityPreference qualityPref =
+                (RecordingQualityPreference)findPreference(getString(R.string.recordingQualityPrefsKey));
+		qualityPref.updateDisplaySize(
+		        getResources().getStringArray(R.array.recordingQualityLabels), width, height);
 
 		// Show the description of the selected video export type. Setting android:summary="%s"
 		// in preferences.xml does the same thing, but only on post-Gingerbread Android versions.
@@ -39,8 +41,8 @@ public class WGPreferences extends PreferenceActivity {
         autoConvertPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference pref, Object value) {
-                // Update broadcast receivers immediately so the change takes effect even if the user
-                // doesn't go back to the main activity.
+                // Update broadcast receivers immediately so the change takes effect even if the
+                // user doesn't go back to the main activity.
                 setAutoConvertEnabled(WGPreferences.this, Boolean.TRUE.equals(value));
                 return true;
             }
@@ -82,10 +84,11 @@ public class WGPreferences extends PreferenceActivity {
             boolean legacyReceiverEnabled = false;
             if (enabled) {
                 try {
-                    // Android 4.0 and later have a Camera.ACTION_NEW_PICTURE constant, which camera apps send after
-                    // taking a picture. The NewPictureReceiver class listens for this broadcast. Earlier Android
-                    // versions send the undocumented com.android.camera.NEW_PICTURE. This determines which
-                    // receiver to enable based on whether the ACTION_NEW_PICTURE field exists.
+                    // Android 4.0 and later have a Camera.ACTION_NEW_PICTURE constant, which camera
+                    // apps send after taking a picture. The NewPictureReceiver class listens for
+                    // this broadcast. Earlier Android versions send the undocumented
+                    // com.android.camera.NEW_PICTURE. This determines which receiver to enable
+                    // based on whether the ACTION_NEW_PICTURE field exists.
                     android.hardware.Camera.class.getField("ACTION_NEW_PICTURE");
                     receiverEnabled = true;
                 }
@@ -98,7 +101,8 @@ public class WGPreferences extends PreferenceActivity {
                     receiverEnabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
-            pm.setComponentEnabledSetting(new ComponentName(context, NewPictureReceiverLegacyBroadcast.class),
+            pm.setComponentEnabledSetting(
+                    new ComponentName(context, NewPictureReceiverLegacyBroadcast.class),
                     legacyReceiverEnabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);

@@ -1,5 +1,8 @@
 # WireGoggles
 
+As of March 2018 WireGoggles is not under active development. I may fix bugs but don't plan to add new features.
+[Vector Camera](https://github.com/dozingcat/VectorCamera) is its successor.
+
 WireGoggles is an Android app that displays a real-time wireframe outline of what your camera is
 pointing at. You can choose from several rendering styles and create your own color schemes, and
 save pictures and videos.
